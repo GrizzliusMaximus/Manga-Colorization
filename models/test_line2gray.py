@@ -12,7 +12,7 @@ from keras.callbacks import TensorBoard
 from time import time
 from keras.preprocessing.image import ImageDataGenerator
 # from gray_model import *
-from GAN_models import *
+from GAN_models_line import *
 from losses import *
 
 
@@ -37,7 +37,7 @@ y_shape = 512
 batch = 150
 
 #directories
-val_set = "../data/data_out_test/gray/"
+val_set = "../data/validation_set_line"
 data_out = "../data/data_out_test/"
 
 def GetDataset(dataset, rgb ,gray):
@@ -56,8 +56,7 @@ gen = generator_model(x_shape,y_shape)
 disc = discriminator_model(x_shape,y_shape)
 advr = advr_model(gen,disc)
 
-
-advr.load_weights("../data/data_out8-mangacolor/updated.h5")
+advr.load_weights("../data/data_out/updated.h5")
 
 #setup dataset
 val_rgb = []
@@ -77,30 +76,7 @@ val_gray = (val_gray-127.5)/127.5
 print("dataset loaded")
 
 
-gen_image_val_2 = (gen.predict(val_gray, batch_size=8)*127.5)+127.5
-# gen_image_val_2[:,:,:,:-1] *= (gen_image_val_2[:,:,:,:-1]/255)**0.5
-gen_image_val = np.zeros((len(gen_image_val_2), gen_image_val_2.shape[1], gen_image_val_2.shape[2], 3))
-gen_image_val[:,:,:,:-1] = gen_image_val_2
-gen_image_val[:,:,:,2] = ((val_gray[:,:,:,0]*127.5)+127.5)*3  - gen_image_val[:,:,:,0] - gen_image_val[:,:,:,1]
-
-
-
-np.clip(gen_image_val,0,255, out = gen_image_val)
-gen_image_val = gen_image_val//1
-gen_image_val = gen_image_val.astype(np.uint8)
-for i in range(gen_image_val.shape[0]):
-    gen_image_val[i] = cv2.cvtColor(gen_image_val[i], cv2.COLOR_BGR2HSV)
-gen_image_val[:,:,:,1] =  (255-((255-gen_image_val[:,:,:,1])/255)**1.5)*255
-# np.clip(gen_image_val,0,255, out = gen_image_val)
-for i in range(gen_image_val.shape[0]):
-    gen_image_val[i] = cv2.cvtColor(gen_image_val[i], cv2.COLOR_HSV2BGR)
-gen_image_val = gen_image_val*1.0
-for i in range(gen_image_val.shape[0]):
-    gg = ((val_gray[i,:,:,0]*127.5)+127.5)*3/(gen_image_val[i,:,:,0] + gen_image_val[i,:,:,1] + gen_image_val[i,:,:,2] + 0.01)
-    for j in range(3):
-        # print( gen_image_val[i,:,:,0])
-        gen_image_val[i,:,:,j] = gen_image_val[i,:,:,j]*gg
-
+gen_image_val = (gen.predict(val_gray, batch_size=8)*127.5)+127.5
 for j in range(len(gen_image_val)):
     cv2.imwrite(data_out +str(j)+'.jpg', gen_image_val[j])
     
