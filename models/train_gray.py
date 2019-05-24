@@ -63,7 +63,7 @@ advr = advr_model(gen,disc)
 advr.compile(loss=['binary_crossentropy',custom_loss_2], loss_weights = [5,100] , optimizer=Adam(lr=2E-4, beta_1=0.9, beta_2=0.999, epsilon=1e-08), metrics=['accuracy'])
 advr.summary()
 
-disc.trainable = False
+disc.trainable = True
 disc.compile(loss=['binary_crossentropy'], optimizer=Adam(lr=2E-4, beta_1=0.9, beta_2=0.999, epsilon=1e-08), metrics=['accuracy'])
 disc.summary()
 
